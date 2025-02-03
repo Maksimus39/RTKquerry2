@@ -9,11 +9,8 @@ import { ResultCode } from "common/enums"
 import { useAppDispatch, useAppSelector } from "common/hooks"
 import { getTheme } from "common/theme"
 import { changeTheme, selectAppStatus, selectIsLoggedIn, selectThemeMode, setIsLoggedIn } from "../../../app/appSlice"
-import { useLogoutMutation } from "../../../features/auth/api/authAPI"
-import { clearTasks } from "../../../features/todolists/model/tasksSlice"
-import { clearTodolists } from "../../../features/todolists/model/todolistsSlice"
 import { baseApi } from "../../../app/baseApi"
-import { todolistsApi } from "../../../features/todolists/api/todolistsApi"
+import { useLogoutMutation } from "../../../features/auth/api/authAPI"
 
 export const Header = () => {
   const dispatch = useAppDispatch()
@@ -31,22 +28,16 @@ export const Header = () => {
   }
 
   const logoutHandler = () => {
-    logout().then((res) => {
-      if (res.data?.resultCode === ResultCode.Success) {
-        dispatch(setIsLoggedIn({ isLoggedIn: false }))
-        localStorage.removeItem("sn-token")
-
-        // dispatch(clearTasks())
-        // dispatch(clearTodolists())
-
-
-        // dispatch(baseApi.util.resetApiState())
-
-
-      }
-    }).then(()=>{
-      dispatch(todolistsApi.util.invalidateTags(["Todolist"]))
-    })
+    logout()
+      .then((res) => {
+        if (res.data?.resultCode === ResultCode.Success) {
+          dispatch(setIsLoggedIn({ isLoggedIn: false }))
+          localStorage.removeItem("sn-token")
+        }
+      })
+      .then(() => {
+        dispatch(baseApi.util.invalidateTags(["Todolist", "Task"]))
+      })
   }
 
   return (
